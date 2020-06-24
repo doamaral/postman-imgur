@@ -1,0 +1,194 @@
+{
+	"info": {
+		"_postman_id": "02d204eb-6df5-42d7-9bba-38974651da05",
+		"name": "imgur",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Accounts",
+			"item": [
+				{
+					"name": "Get Accounts Data Images",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "812584d2-4a3d-4231-88ee-14b1df6a0e88",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/3/account/me/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"3",
+								"account",
+								"me",
+								"images"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Account Albuns",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/3/account/me/albums/ids/1",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"3",
+								"account",
+								"me",
+								"albums",
+								"ids",
+								"1"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "oauth2",
+		"oauth2": [
+			{
+				"key": "accessToken",
+				"value": "f194226e1cc71002ebc5187ab4e21539c214393d",
+				"type": "string"
+			},
+			{
+				"key": "tokenType",
+				"value": "bearer",
+				"type": "string"
+			},
+			{
+				"key": "addTokenTo",
+				"value": "header",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "7cb08487-8958-4f12-8cb4-450645a353d9",
+				"type": "text/javascript",
+				"exec": [
+					"//Iniciação da data de criação do Token",
+					"let tokenDate = new Date();",
+					"",
+					"//Caso exista um timestamp registrado atualiza a data de criação do",
+					"//token a partir dessa data",
+					"let tokenTimeStamp = pm.collectionVariables.get(\"tokenTimeStamp\");",
+					"if(tokenTimeStamp){",
+					"    tokenDate = Date.parse(tokenTimeStamp);",
+					"}",
+					"",
+					"//Define o tempo de expiração do token",
+					"let expiresInTime = pm.collectionVariables.get(\"expiresIn\");",
+					"if(!expiresInTime){",
+					"    expiresInTime = 0;",
+					"}",
+					"",
+					"//Caso a diferença entre a data na qual a request está sendo feita",
+					"//e a data de criação do token sejam superiores ao tempo de expiração",
+					"//um novo request ao refresh token é realizado",
+					"if((new Date() - tokenDate) >= expiresInTime){",
+					"    console.log(\"Token expired!\");",
+					"    console.log(\"Preparing Refresh Token Request\");",
+					"    const refreshTokenRequest = {",
+					"        url: 'https://api.imgur.com/oauth2/token',",
+					"        method: 'POST',",
+					"        body: {",
+					"            mode: 'formdata',",
+					"            formdata: [",
+					"                    { key: \"refresh_token\", value: pm.environment.get(\"refreshToken\") },",
+					"                    { key: \"grant_type\", value: \"refresh_token\" },",
+					"                    { key: \"client_id\", value: pm.environment.get(\"clientId\") },",
+					"                    { key: \"client_secret\", value: pm.environment.get(\"clientSecret\") }",
+					"            ]",
+					"        }",
+					"    };",
+					"    console.log(\"Beggining Authentication\");",
+					"    pm.sendRequest(refreshTokenRequest, function (err, res) {",
+					"        if(!err){",
+					"            console.log(\"Authentication successfull\");",
+					"            pm.environment.set(\"accessToken\", res.json().access_token);",
+					"            pm.environment.set(\"refreshToken\", res.json().refresh_token);",
+					"            pm.collectionVariables.set(\"expiresIn\", res.json().expires_in);",
+					"            pm.collectionVariables.set(\"tokenTimeStamp\", new Date());",
+					"            console.log(\"accessToken and refreshToken setup successfull\");",
+					"        }else{",
+					"            console.log(err);",
+					"        }",
+					"    });",
+					"}else{",
+					"    console.log(\"Token valid.\")",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "50cb22f9-3cc5-4a86-a289-2653756e7127",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "c0fb620d-32b5-4053-89c2-27af345781b5",
+			"key": "expiresIn",
+			"value": 315360000
+		},
+		{
+			"id": "43938826-e6c6-4327-b37e-0c92545a6873",
+			"key": "tokenTimeStamp",
+			"value": "2020-06-23T02:49:43.643Z"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
