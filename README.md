@@ -46,3 +46,11 @@ After configuring and getting correctly the first pair of tokens, copy and paste
 ![](_img/env_variables.png)
 
 Try to run some simple request to see if your basic setup is functioning
+
+To be continued...
+
+## References
+
+- [How to Automate OAuth2 Token Renewal in Postman](https://medium.com/@allen.helton/how-to-automate-oauth2-token-renewal-in-postman-864420d381a0)
+- [Postman Sandbox API reference](https://learning.postman.com/docs/postman/scripts/postman-sandbox-api-reference/#pmsendrequest)
+- [How to persist an OAuth2 token (or use a refresh token) in Postman collections?](https://stackoverflow.com/questions/35070891/how-to-persist-an-oauth2-token-or-use-a-refresh-token-in-postman-collections)
