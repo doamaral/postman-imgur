@@ -9,48 +9,6 @@
 			"name": "Accounts",
 			"item": [
 				{
-					"name": "Get Accounts Data Images",
-					"event": [
-						{
-							"listen": "prerequest",
-							"script": {
-								"id": "812584d2-4a3d-4231-88ee-14b1df6a0e88",
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{accessToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/3/account/me/images",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"3",
-								"account",
-								"me",
-								"images"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "Get Account Albuns",
 					"request": {
 						"auth": {
@@ -66,17 +24,318 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{baseUrl}}/3/account/me/albums/ids/1",
+							"raw": "{{baseUrl}}/{{version}}/account/me/albums/",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"3",
+								"{{version}}",
 								"account",
 								"me",
 								"albums",
-								"ids",
-								"1"
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Accounts Data Images",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "812584d2-4a3d-4231-88ee-14b1df6a0e88",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/account/me/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"account",
+								"me",
+								"images"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Albuns",
+			"item": [
+				{
+					"name": "Create Album",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "7a98a752-4fc7-471e-920d-a3cc3ab0b1ad",
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"console.log(responseJson.data.id);\r",
+									"pm.collectionVariables.set(\"newAlbumHashes\", responseJson.data.id);\r",
+									"\r",
+									"pm.test(\"test album creation successfuly\", function(){\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "e0323985-c70a-474c-a945-24f319bb618b",
+								"exec": [
+									"//Showing off some resources of postman's embedded Javascript  libraries\r",
+									"//Using an array in Variables. Yes we can!\r",
+									"const prefixo = pm.collectionVariables.get(\"prefixList\");\r",
+									"\r",
+									"//Using Dynamic Variables from the amazing faker.js\r",
+									"const suffix = pm.variables.replaceIn('{{$randomLoremSentence}}');\r",
+									"\r",
+									"//Using the _.sample from the amazing lodash\r",
+									"const baseName = _.sample(prefixo.split(\",\"));\r",
+									"\r",
+									"pm.collectionVariables.set(\"randomAlbumName\", baseName + \" album \" + suffix);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{randomAlbumName}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Description Post Album",
+									"type": "text"
+								},
+								{
+									"key": "ids[]",
+									"value": "[8ck0x4o,iObj5Jp]",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "cover",
+									"value": "iObj5Jp",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Existing Album",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"key": "albumHashes",
+									"value": "{{newAlbumHashes}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Album Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ac3ac88c-2c56-4755-b50c-7480fc6257ca",
+								"exec": [
+									"pm.test(\"test not found album is 404\", function(){\r",
+									"    pm.expect(pm.response.code).to.eql(404);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"key": "albumHashes",
+									"value": "notfoundalbum"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Album Images",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albunHashes/images",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albunHashes",
+								"images"
+							],
+							"variable": [
+								{
+									"key": "albunHashes",
+									"value": "{{newAlbumHashes}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Album",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"key": "albumHashes",
+									"value": "8KPn0yb"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Album Not Found",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "af914387-21ed-4f39-8d69-4b4d3511a685",
+								"exec": [
+									"pm.test(\"test delete of not found album is 404\", function(){\r",
+									"    pm.expect(pm.response.code).eql(404)\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"key": "albumHashes",
+									"value": "{{$randomNoun}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Most recently added Album",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"description": "Recently added ",
+									"key": "albumHashes",
+									"value": "{{newAlbumHashes}}"
+								}
 							]
 						}
 					},
@@ -91,7 +350,7 @@
 		"oauth2": [
 			{
 				"key": "accessToken",
-				"value": "xxxxxxxxxxxxxxxxxxx",
+				"value": "f194226e1cc71002ebc5187ab4e21539c214393d",
 				"type": "string"
 			},
 			{
@@ -180,14 +439,29 @@
 	],
 	"variable": [
 		{
-			"id": "c0fb620d-32b5-4053-89c2-27af345781b5",
+			"id": "ef7a32ce-1255-4aba-a0c8-29df38215f61",
 			"key": "expiresIn",
 			"value": 315360000
 		},
 		{
-			"id": "43938826-e6c6-4327-b37e-0c92545a6873",
+			"id": "e7ea64ac-04dd-4855-bf1c-c362aa00fdea",
 			"key": "tokenTimeStamp",
 			"value": "2020-06-23T02:49:43.643Z"
+		},
+		{
+			"id": "d137a07c-3eee-4238-9dfd-3557d3b70991",
+			"key": "prefixList",
+			"value": "[\"my\", \"awesome\", \"hilarious\", \"trip\", \"amazing\", \"aweful\", \"nice\", \"tedious\"]"
+		},
+		{
+			"id": "afe8ce1c-046f-446d-9e94-997987c159bc",
+			"key": "newAlbumHashes",
+			"value": ""
+		},
+		{
+			"id": "063e82b9-8f7e-4924-afa7-580196c402c7",
+			"key": "randomAlbumName",
+			"value": ""
 		}
 	],
 	"protocolProfileBehavior": {}
