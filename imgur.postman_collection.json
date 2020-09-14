@@ -10,6 +10,22 @@
 			"item": [
 				{
 					"name": "Get Account Albuns",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "8bf84eb4-656d-4dd7-967c-5d06884b6436",
+								"exec": [
+									"const responseJson = pm.response.json();\r",
+									"\r",
+									"pm.test(\"Get empty album list\", function(){\r",
+									"    pm.expect(responseJson.data.length).to.eql(0);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -72,6 +88,30 @@
 					"response": []
 				}
 			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "372630be-5e3d-44d3-9851-3ba2bf0f8cac",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f354ee76-a8b2-4ccc-8ced-4e78d45140ca",
+						"type": "text/javascript",
+						"exec": [
+							"pm.test(\"should get 200\", function(){",
+							"    pm.expect(pm.response.code).eql(200)",
+							"})"
+						]
+					}
+				}
+			],
 			"protocolProfileBehavior": {}
 		},
 		{
@@ -86,12 +126,18 @@
 								"id": "7a98a752-4fc7-471e-920d-a3cc3ab0b1ad",
 								"exec": [
 									"const responseJson = pm.response.json();\r",
-									"console.log(responseJson.data.id);\r",
-									"pm.collectionVariables.set(\"newAlbumHashes\", responseJson.data.id);\r",
 									"\r",
 									"pm.test(\"test album creation successfuly\", function(){\r",
 									"    pm.expect(pm.response.code).to.eql(200);\r",
-									"})"
+									"});\r",
+									"pm.test(\"test new album id hashes is not null\", function(){\r",
+									"    pm.collectionVariables.set(\"newAlbumHashes\", responseJson.data.id);\r",
+									"    pm.expect(responseJson.data.id).is.not.null\r",
+									"});\r",
+									"pm.test(\"test new album deletehash is not null\", function(){\r",
+									"    pm.collectionVariables.set(\"newAlbumDeleteHashes\", responseJson.data.deletehash);\r",
+									"    pm.expect(responseJson.data.deletehash).is.not.null\r",
+									"});"
 								],
 								"type": "text/javascript"
 							}
@@ -130,20 +176,8 @@
 								},
 								{
 									"key": "description",
-									"value": "Description Post Album",
+									"value": "{{$randomLoremSentence}}",
 									"type": "text"
-								},
-								{
-									"key": "ids[]",
-									"value": "[8ck0x4o,iObj5Jp]",
-									"type": "text",
-									"disabled": true
-								},
-								{
-									"key": "cover",
-									"value": "iObj5Jp",
-									"type": "text",
-									"disabled": true
 								}
 							]
 						},
@@ -156,6 +190,66 @@
 								"{{version}}",
 								"album",
 								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit existing Album",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "f37e3c24-745c-4c67-a585-4f2eec5e3753",
+								"exec": [
+									"pm.test(\"Status code is 200\", function () {\r",
+									"    pm.expect(pm.response.status).to.be.ok;\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "cbe2e6ff-15ff-440b-b50e-a70f37b87554",
+								"exec": [
+									"const edtTitle = \"EDT \" + pm.collectionVariables.get(\"randomAlbumName\");\r",
+									"pm.collectionVariables.set(\"randomAlbumNameEdited\", edtTitle);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{randomAlbumNameEdited}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								":albumHashes"
+							],
+							"variable": [
+								{
+									"key": "albumHashes",
+									"value": "{{newAlbumDeleteHashes}}"
+								}
 							]
 						}
 					},
@@ -218,7 +312,7 @@
 							"variable": [
 								{
 									"key": "albumHashes",
-									"value": "notfoundalbum"
+									"value": "{{$randomAlphaNumeric}}"
 								}
 							]
 						}
@@ -253,6 +347,20 @@
 				},
 				{
 					"name": "Delete Album",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "ed552378-4314-4c40-892b-636dac76a926",
+								"exec": [
+									"pm.test(\"test album deleted successfuly\", function(){\r",
+									"    pm.expect(pm.response.code).to.eql(200);\r",
+									"})"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -269,7 +377,7 @@
 							"variable": [
 								{
 									"key": "albumHashes",
-									"value": "8KPn0yb"
+									"value": "{{newAlbumHashes}}"
 								}
 							]
 						}
@@ -308,33 +416,7 @@
 							"variable": [
 								{
 									"key": "albumHashes",
-									"value": "{{$randomNoun}}"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Most recently added Album",
-					"request": {
-						"method": "DELETE",
-						"header": [],
-						"url": {
-							"raw": "{{baseUrl}}/{{version}}/album/:albumHashes",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"{{version}}",
-								"album",
-								":albumHashes"
-							],
-							"variable": [
-								{
-									"description": "Recently added ",
-									"key": "albumHashes",
-									"value": "{{newAlbumHashes}}"
+									"value": "unknown"
 								}
 							]
 						}
@@ -385,6 +467,7 @@
 					"//Define o tempo de expiração do token",
 					"let expiresInTime = pm.collectionVariables.get(\"expiresIn\");",
 					"if(!expiresInTime){",
+					"    console.log(\"Expires In: \"+expiresInTime);",
 					"    expiresInTime = 0;",
 					"}",
 					"",
@@ -439,28 +522,38 @@
 	],
 	"variable": [
 		{
-			"id": "ef7a32ce-1255-4aba-a0c8-29df38215f61",
+			"id": "79b8a1ce-12ce-49a7-a29e-08e9f09dc592",
 			"key": "expiresIn",
 			"value": 315360000
 		},
 		{
-			"id": "e7ea64ac-04dd-4855-bf1c-c362aa00fdea",
+			"id": "7d439e75-f6f3-4b72-a53b-f9b006b886ca",
 			"key": "tokenTimeStamp",
 			"value": "2020-06-23T02:49:43.643Z"
 		},
 		{
-			"id": "d137a07c-3eee-4238-9dfd-3557d3b70991",
+			"id": "e6802b4e-e65b-40ee-bfa9-1ed5ca411085",
 			"key": "prefixList",
 			"value": "[\"my\", \"awesome\", \"hilarious\", \"trip\", \"amazing\", \"aweful\", \"nice\", \"tedious\"]"
 		},
 		{
-			"id": "afe8ce1c-046f-446d-9e94-997987c159bc",
+			"id": "cac04bb2-77e1-47d6-ad4b-82e354d5d1a3",
 			"key": "newAlbumHashes",
 			"value": ""
 		},
 		{
-			"id": "063e82b9-8f7e-4924-afa7-580196c402c7",
+			"id": "aecf00d1-a2d8-4698-81a8-9917a2693319",
 			"key": "randomAlbumName",
+			"value": ""
+		},
+		{
+			"id": "a1780fa2-4b90-46fe-a497-778caa193cce",
+			"key": "newAlbumDeleteHashes",
+			"value": ""
+		},
+		{
+			"id": "1deb1b01-c122-44f2-84e2-40a0ea18cd7a",
+			"key": "randomAlbumNameEdited",
 			"value": ""
 		}
 	],
