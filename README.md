@@ -1,21 +1,50 @@
 # postman-imgur
-Using Postman with Oauth2 and refreshing its token automatically using pre-request scripts
+Using imgur public API to try some Postman's features including:
+ - Environment and Collections Variables
+ - Pre-requests and Tests scripts
+ - Dynamic Variables
+ - Oauth2 Authentication and refreshing its tokens when expired automatically using pre-request scripts
+ - Fancy reports using HTMLEXTRA
 
+## Overview
 
-## Step-by-Step
+### Pre requisites
+- Node.js >= v10
+- Newman: `npm install -g newman`
+- HTMLExtra: `npm install -g newman-reporter-htmlextra`
 
-### Collection creation
+## Running Tests using Newman
 
-I created a collection `imgur` and a folder `Accounts` under it to put all account related endpoints. It should look like this
+Download or Clone the project. Once you cd to the project folder:
 
-![](_img/initial.png) 
+```
+newman run "imgur.postman_collection.json" -e "Imgur - PRD.postman_environment.json" --iteration-count 1 --reporters cli,htmlextra
+```
 
-### Environment variables
+where:
+ - `--iteration-count`: is the number of iterations (repetitions)
+ - `--reporters`: the test execution outputs
+   - cli: the prompt/terminal
+   - html: default newman's html report generator
+   - htmlextra: a fancy report template
+
+### Variables
+
+#### Environment
 - `baseUrl`: https://api.imgur.com
+- `version`: api version, initially equals to 3
 - `clientId` and `clientSecret`: obtained when you subscribe your app at imgur service
 - `accessToken` and `refreshToken`: used to store its respectives values when we get it
 
-### Oauth2 authentication
+#### Collection
+
+- `expiresIn`: To control the Token Expiration
+- `tokenTimestamp`: Set the Time of the Token creation
+- `prefixList`: List of preffixes that can be used when creating a album
+- `newAlbumHashes`: Got after the execution of the POST request to record the Album Id after its creation
+- `randomAlbumName`: Dynamically obtained using a sample from `prefixList`, a fixed string `" album "` and a Dynamic Variable from postman (neat!)
+
+## Oauth2 authentication
 In this solution, I'll need to get manually the first pair of access and refresh token. After that, I'll refresh automatically when access token expires.
 
 Right clicking at the collection, go to Edit at the context menu, and then to the Authentication tab.
