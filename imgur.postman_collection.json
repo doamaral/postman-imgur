@@ -196,6 +196,67 @@
 					"response": []
 				},
 				{
+					"name": "Create Album No Auth",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"id": "6c0a389c-7b65-44a2-b63b-36a61fc12406",
+								"exec": [
+									"pm.test(\"test non-authorized request should return 401\", function () {\r",
+									"    pm.expect(pm.response.code).to.eql(401);\r",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "293543c8-3e3b-4cbb-bac3-73c3a76d15b0",
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "title",
+									"value": "{{$randomLoremSentence}}",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "{{$randomLoremSentence}}",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/{{version}}/album/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"{{version}}",
+								"album",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Edit existing Album",
 					"event": [
 						{
@@ -522,37 +583,37 @@
 	],
 	"variable": [
 		{
-			"id": "79b8a1ce-12ce-49a7-a29e-08e9f09dc592",
+			"id": "cf34f9fc-abd7-4f03-97c6-c976a2a22b86",
 			"key": "expiresIn",
 			"value": 315360000
 		},
 		{
-			"id": "7d439e75-f6f3-4b72-a53b-f9b006b886ca",
+			"id": "e641ee22-8012-45fc-a7b4-e09e46b8c02f",
 			"key": "tokenTimeStamp",
 			"value": "2020-06-23T02:49:43.643Z"
 		},
 		{
-			"id": "e6802b4e-e65b-40ee-bfa9-1ed5ca411085",
+			"id": "d5f36584-a3cc-4b41-bd77-bf6cae1e7d07",
 			"key": "prefixList",
 			"value": "[\"my\", \"awesome\", \"hilarious\", \"trip\", \"amazing\", \"aweful\", \"nice\", \"tedious\"]"
 		},
 		{
-			"id": "cac04bb2-77e1-47d6-ad4b-82e354d5d1a3",
+			"id": "b991427c-467a-43d9-9583-884abc3f9fca",
 			"key": "newAlbumHashes",
 			"value": ""
 		},
 		{
-			"id": "aecf00d1-a2d8-4698-81a8-9917a2693319",
+			"id": "e33e0d55-8a7b-456a-bc44-2eabc0a1b3a7",
 			"key": "randomAlbumName",
 			"value": ""
 		},
 		{
-			"id": "a1780fa2-4b90-46fe-a497-778caa193cce",
+			"id": "61690ab9-0422-465e-b1d0-08184a247747",
 			"key": "newAlbumDeleteHashes",
 			"value": ""
 		},
 		{
-			"id": "1deb1b01-c122-44f2-84e2-40a0ea18cd7a",
+			"id": "5fe5a120-46ca-4bdb-95ea-c82370f370cb",
 			"key": "randomAlbumNameEdited",
 			"value": ""
 		}
